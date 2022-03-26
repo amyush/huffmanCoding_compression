@@ -157,11 +157,5 @@ int main(){
     }
     float ab = calculate_average_no_of_bits(freqMap,huffman_codes,chars);
     cout<<"Average no. of bits : "<<ab<<endl<<endl;
-
-    //Submission details
-    cout<<"Multimedia Systems Assignment 1"<<endl;
-    cout<<"Submitted to : Dr. Debi Prosad Dogra Sir"<<endl;
-    cout<<"Submitted by : Rohit Kumar Badiya (21CS06006)"<<endl;
-    cout<<"M.Tech 2nd Semester"<<endl;
     return EXIT_SUCCESS;
 }
