@@ -8,4 +8,5 @@ This program performs the huffman coding compression on text of any length.
 Output is given on the terminal itself.
 
 ## Run
-Run the .cpp file and check the result in the terminal.
+1) Install any compiler for c++ **(Preferable - gcc compiler)**. Set the path for the same.
+2) Run the .cpp file and check the result in the terminal.
