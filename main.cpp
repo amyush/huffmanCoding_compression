@@ -1,118 +1,97 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-// class min_heap_node {
-// public:
-// 	char symbol;
-// 	int frequency;
-// 	min_heap_node *left, *right;
-// 	min_heap_node(char symbol, int frequency){
-// 		left = right = NULL;
-// 		this->symbol = symbol;
-// 		this->frequency = frequency;
-// 	}
-// };
-
+// Declaring the structure for each node
 struct node {
 	char symbol;
 	int freq;
 	node *leftNode, *rightNode;
-	node(char symbol, int freq) {
+	node(char symbol, int freq, node* leftNode, node* rightNode) {
 		this->freq = freq;
 		this->symbol = symbol;
-		leftNode = rightNode = NULL;
+		this->leftNode = leftNode;
+		this->rightNode = rightNode;
 	}
 };
 
-class compare {
+// To compare between 2 structure objects
+class cmp {
 public:
-	bool operator()(node* left1, node* right1){
-		return (left1->freq > right1->freq);
+	bool operator()(node* left, node* right){
+		return (left->freq > right->freq);
 	}
 };
 
-void print_frequency_table(map<char,int> M){
-    cout<<"Frequncey Table"<<endl;
-    cout<<"========================================="<<endl;
-    cout<<"Character"<<"\t"<<"ASCII Value\t"<<"Frequency"<<endl;
-    cout<<"========================================="<<endl;
-    for (auto& it : M){
-        cout <<it.first << "\t\t" << int(it.first) << "\t\t" << it.second<< endl;
-        cout<<"-----------------------------------------"<<endl;
-    }
-}
-
-void generate_huffman_codes(node* root, string str, map<char, string> &huffman_codes)
+// Assigning the o/1 bits to the paths of the huffman tree generated - recursive function
+void genHuffCodes(node* root, string str, map<char, string> &codes)
 {
-    if(!root)   return;
-    if (!(root->leftNode) && !(root->rightNode))    
-		huffman_codes[root->symbol] = (str != "") ? str : "1";
-	generate_huffman_codes(root->leftNode, str + "0", huffman_codes);
-    generate_huffman_codes(root->rightNode, str + "1", huffman_codes);
-}
-
-void generated_codes_message(map<char, string> huffman_codes){
-    cout<<"\nOutput from Huffman Coding is as follows"<<endl;
-    cout<<"========================================="<<endl;
-    cout<<"Character"<<"\t"<<"Huffman Code"<<endl;
-    cout<<"========================================="<<endl;
-    for (auto& it : huffman_codes){
-        cout<<it.first<<"\t\t"<<it.second<<endl;
-        cout<<"-----------------------------------------"<<endl;
-    }
-}
-
-map<char, string> Huffman_Coding(map<char,int> M)
-{
-    map<char, string> huffman_codes;
-	priority_queue<node*, vector<node*>, compare> heap_of_symbols;
-	struct node *top, *left, *right;
-	for (auto i : M)
-		heap_of_symbols.push(new node(i.first,i.second));
-    while (heap_of_symbols.size() != 1){
-        left = heap_of_symbols.top();
-        heap_of_symbols.pop();
-		right = heap_of_symbols.top();
-		heap_of_symbols.pop();
-		top = new node('$', left->freq + right->freq);
-		top->leftNode = left;
-		top->rightNode = right;
-		heap_of_symbols.push(top);
+    if(root != NULL) {
+		if (!(root->leftNode) && !(root->rightNode))    
+			codes[root->symbol] = (str != "") ? str : "0";
+		genHuffCodes(root->leftNode, str + "1", codes);
+		genHuffCodes(root->rightNode, str + "0", codes); 
 	}
-	generate_huffman_codes(heap_of_symbols.top(), "", huffman_codes);
-    generated_codes_message(huffman_codes);
-    return huffman_codes;
 }
 
-string get_huffman_string(string text, map<char, string> huffman_codes){
-    string str;
-    for (char ch: text)
-        str += huffman_codes[ch];
-    //cout << str << endl;
-    return str;
-}
-
-float calculate_average_no_of_bits(map<char,int> m1,map<char,string> m2,vector<char> c){
+float calculate_average_no_of_bits(map<char,int> freqMap,map<char,string> compCode){
+	vector<char> c;
+    for(auto& i:freqMap){
+        c.push_back(i.first);
+    }
     int n=0;
     int sum = 0;
     int nc = 0;
-    cout<<"\nTable for the Calculation of average number of bits"<<endl;
-    cout<<"==================================================="<<endl;
-    cout << "Symbol" << "\t" << "Frequency" << "\t" << "Huffman Code" << "\t" << "Code Length" <<endl;
-    cout<<"==================================================="<<endl;
+    cout<<"Table for the Calculation of average number of bits"<<endl;
+    cout<<"----------------------------------------------------------------------"<<endl;
+    cout << "Symbol\t\t" << "Frequency\t\t" << "Huffman Code\t\t" << "Code Length\t\t" <<endl;
+    cout<<"----------------------------------------------------------------------"<<endl;
     for(int i=0;i<c.size();i++){
-        sum = sum + m1[c[i]]*m2[c[i]].length();
-        nc = nc + m1[c[i]];
-        if(m2[c[i]].length()>=8)
-            cout << c[i] << "\t" << m1[c[i]] << "\t\t" << m2[c[i]] << "\t" << m2[c[i]].length() <<endl;
+        sum += freqMap[c[i]] * compCode[c[i]].length();
+        nc += freqMap[c[i]];
+        if(compCode[c[i]].length() >= 8)
+            cout << c[i] << "\t\t\t\t" << freqMap[c[i]] << "\t\t\t\t" << compCode[c[i]] << "\t\t\t\t" << compCode[c[i]].length() <<endl;
         else
-            cout << c[i] << "\t" << m1[c[i]] << "\t\t" << m2[c[i]] << "\t\t" << m2[c[i]].length() <<endl;
-        cout<<"---------------------------------------------------"<<endl;
+            cout << c[i] << "\t\t\t\t" << freqMap[c[i]] << "\t\t\t\t" << compCode[c[i]] << "\t\t\t\t" << compCode[c[i]].length() <<endl;
+    cout<<"----------------------------------------------------------------------"<<endl;
     }
     cout<<"Total number of bits : "<<sum<<endl;
     cout<<"Total number of characters : "<<nc<<endl;
-    float ab = float(sum)/nc;
-    return ab;
+	cout<<"----------------------------------------------------------------------"<<endl;
+	return float(sum)/nc;
+}
+
+void displayStats(string &text, map<char,int> &freqMap, string codedText, map<char, string> &compCode) {
+	//---------------------------------------------------------------------
+	cout<<"Total number of characters in the text are : "<<text.length()<<endl<<endl;	
+	
+	//---------------------------------------------------------------------
+	//Printing the generated frequency table
+	cout<<"----------------Frequncey Table----------------"<<endl<<endl;
+    cout<<"Character\t"<<"Frequency\t"<<"\tASCII Value\t"<<endl;
+    cout<<"----------------------------------------------"<<endl;
+    for (auto &it : freqMap){
+        cout <<it.first << "\t\t\t\t" << it.second<< "\t\t\t\t" << int(it.first) << endl;
+        cout<<"-----------------------------------------"<<endl;
+    }
+	cout<<endl<<endl;
+    
+	//---------------------------------------------------------------------
+	cout<<"Average no. of bits : "<<calculate_average_no_of_bits(freqMap,compCode)<<endl<<endl;	
+
+	//---------------------------------------------------------------------
+	// Printing the huffman codes
+	cout<<endl<<endl<<"\nOutput from Huffman Coding is as follows"<<endl;
+    cout<<"========================================="<<endl;
+    cout<<"Character"<<"\t"<<"Huffman Code"<<endl;
+    cout<<"========================================="<<endl;
+    for (auto& it : compCode){
+        cout<<it.first<<"\t\t"<<it.second<<endl;
+        cout<<"-----------------------------------------"<<endl;
+    }
+	cout<<endl<<endl;
+
+	//---------------------------------------------------------------------
+	cout<<"Huffman coding output for input text file will be : \n"<<codedText<<endl;
 }
 
 int main(){
@@ -120,14 +99,19 @@ int main(){
     ifstream input_file(text_file);
 
     if (!input_file.is_open()) {
-        cerr << "File cannot open" << endl;
-        return EXIT_FAILURE;
+        cout << "File cannot open" << endl;
+        return 0;
     }
 
     //Opening the file
     char character;
     string text ="";
     map<char, int> freqMap;
+	map<char,string> huffCode;
+	priority_queue<node*, vector<node*>, cmp> symbols;
+	struct node *temp, *left;
+
+	// Generating frequency table of characters
     while (input_file.get(character)) {
       	if(character != ' ' && character != '\n') {
             text = text + character;
@@ -137,25 +121,27 @@ int main(){
 	//Closing the file
 	input_file.close();
 
-    // cout<<"Total characters in the text are : "<<total<<endl<<endl;
-
-	//Printing the generated frequency table
-    print_frequency_table(freqMap);
-
-    //Applying huffman coding algorithm
-    map<char, string> huffman_codes = Huffman_Coding(freqMap);
+	//Applying huffman coding algorithm	
+	for (auto i : freqMap)
+		symbols.push(new node(i.first,i.second, NULL, NULL));
+	
+    while (symbols.size() != 1){
+        left = symbols.top(); 
+		symbols.pop();	
+		temp = new node(' ', left->freq + symbols.top()->freq, left, symbols.top());
+		symbols.pop();
+		symbols.push(temp);
+	}
+	// Assigning codes to each path on the tree
+	genHuffCodes(symbols.top(), "", huffCode);
 
     //Generating the encoded string for given input text
-    string huffman_string;
-    huffman_string = get_huffman_string(text,huffman_codes);
-    cout<<"Huffman coding output for input text file will be : \n"<<huffman_string<<endl;
+    string codedText;
+    for (char ch: text)
+        codedText += huffCode[ch];
 
-    //Calculation of average number of bits
-    vector<char> chars;
-    for(auto& i:freqMap){
-        chars.push_back(i.first);
-    }
-    float ab = calculate_average_no_of_bits(freqMap,huffman_codes,chars);
-    cout<<"Average no. of bits : "<<ab<<endl<<endl;
-    return EXIT_SUCCESS;
+	// displaying the statistics
+	displayStats(text, freqMap, codedText, huffCode);
+	
+	return 1;
 }
