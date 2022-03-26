@@ -1,4 +1,4 @@
-# huffmanCoding_compression
+# Huffman Coding Compression
 This program performs the huffman coding compression on text of any length.
 
 ## Input
